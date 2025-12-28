@@ -58,7 +58,27 @@
             <div class="message-content-wrapper">
               <div class="message-name">{{ message.name }}</div>
               <div class="message-bubble message-bubble-left">
-                <div class="message-text">{{ message.text }}</div>
+                <div v-if="editingIndex !== index" class="message-text">{{ message.text }}</div>
+                <el-input
+                  v-else
+                  v-model="editingText"
+                  type="textarea"
+                  :autosize="{ minRows: 1, maxRows: 50 }"
+                  class="edit-textarea"
+                  @blur="saveEdit(index)"
+                  @keydown.ctrl.enter="saveEdit(index)"
+                />
+                <div v-if="userIdentity === 'plaintiff' && editingIndex !== index" class="edit-btn-wrapper">
+                  <el-button
+                    text
+                    type="primary"
+                    size="small"
+                    class="edit-btn"
+                    @click="startEdit(index, message.text)"
+                  >
+                    编辑
+                  </el-button>
+                </div>
               </div>
               <div class="message-time">{{ message.time }}</div>
             </div>
@@ -82,15 +102,37 @@
 
           <!-- 被告：右边布局 -->
           <template v-else-if="message.role === 'defendant'">
-            <div class="message-content-wrapper message-content-right">
-              <div class="message-name message-name-right">{{ message.name }}</div>
-              <div class="message-bubble message-bubble-right">
-                <div class="message-text">{{ message.text }}</div>
+            <div class="message-defendant-wrapper">
+              <div class="message-content-wrapper message-content-right">
+                <div class="message-name message-name-right">{{ message.name }}</div>
+                <div class="message-bubble message-bubble-right">
+                  <div v-if="editingIndex !== index" class="message-text">{{ message.text }}</div>
+                  <el-input
+                    v-else
+                    v-model="editingText"
+                    type="textarea"
+                    :autosize="{ minRows: 1, maxRows: 50 }"
+                    class="edit-textarea"
+                    @blur="saveEdit(index)"
+                    @keydown.ctrl.enter="saveEdit(index)"
+                  />
+                  <div v-if="userIdentity === 'defendant' && editingIndex !== index" class="edit-btn-wrapper">
+                    <el-button
+                      text
+                      type="primary"
+                      size="small"
+                      class="edit-btn"
+                      @click="startEdit(index, message.text)"
+                    >
+                      编辑
+                    </el-button>
+                  </div>
+                </div>
+                <div class="message-time message-time-right">{{ message.time }}</div>
               </div>
-              <div class="message-time message-time-right">{{ message.time }}</div>
-            </div>
-            <div class="message-avatar">
-              <div class="avatar avatar-defendant">被</div>
+              <div class="message-avatar message-avatar-right">
+                <div class="avatar avatar-defendant">被</div>
+              </div>
             </div>
           </template>
         </div>
@@ -104,8 +146,8 @@
         size="large"
         class="generate-btn"
         @click="generateVerdict"
-      >
-        生成判决结果
+        >
+        生成判决书
       </el-button>
     </div>
   </div>
@@ -115,12 +157,14 @@
 import { ref, onMounted, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useCaseStore } from '@/stores/case'
 
 const route = useRoute()
 const router = useRouter()
 
-// 获取身份信息
-const userIdentity = ref(route.query.identity || 'plaintiff')
+// 获取身份信息（从store或route）
+const caseStore = useCaseStore()
+const userIdentity = ref(caseStore.selectedIdentity || route.query.identity || 'plaintiff')
 
 // 法官类型
 const judgeTypes = ref([
@@ -167,6 +211,27 @@ const defendantStrategy = ref('保守策略：优先考虑通过调解解决争�
 const messages = ref([])
 const debateCompleted = ref(false)
 const chatContainer = ref(null)
+
+// 编辑相关
+const editingIndex = ref(-1)
+const editingText = ref('')
+
+// 开始编辑
+const startEdit = (index, text) => {
+  editingIndex.value = index
+  editingText.value = text
+}
+
+// 保存编辑
+const saveEdit = (index) => {
+  if (editingIndex.value === index && editingText.value.trim()) {
+    messages.value[index].text = editingText.value.trim()
+    // TODO: 基于修改重新生成后续对话（AI部分暂时没有）
+    ElMessage.success('内容已更新')
+  }
+  editingIndex.value = -1
+  editingText.value = ''
+}
 
 // 开始庭审
 const startDebate = () => {
@@ -276,7 +341,7 @@ onMounted(() => {
 }
 
 .section-title {
-  font-size: 16px;
+  font-size: 6px;
   color: #333;
   margin: 0 0 15px 0;
   font-weight: 600;
@@ -295,20 +360,36 @@ onMounted(() => {
   width: 100%;
 }
 
+/* 选择器输入框字体大小 */
+:deep(.judge-select .el-input__inner) {
+  font-size: 6px;
+  height: 28px;
+  line-height: 28px;
+}
+
+/* 选择器下拉选项字体大小 */
+:deep(.judge-select .el-select-dropdown__item) {
+  font-size: 6px;
+  height: auto;
+  padding: 6px 12px;
+}
+
 .judge-option {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
 }
 
 .judge-name {
   font-weight: 600;
   color: #333;
+  font-size: 6px;
 }
 
 .judge-desc {
-  font-size: 12px;
+  font-size: 6px;
   color: #666;
-  margin-top: 4px;
 }
 
 /* 诉讼策略显示 */
@@ -340,7 +421,7 @@ onMounted(() => {
 }
 
 .strategy-label {
-  font-size: 14px;
+  font-size: 6px;
   font-weight: 600;
   margin-bottom: 8px;
   color: #333;
@@ -355,7 +436,7 @@ onMounted(() => {
 }
 
 .strategy-content {
-  font-size: 13px;
+  font-size: 6px;
   color: #666;
   line-height: 1.6;
 }
@@ -387,7 +468,7 @@ onMounted(() => {
   justify-content: center;
   height: 200px;
   color: #999;
-  font-size: 14px;
+  font-size: 6px;
 }
 
 .message-item {
@@ -481,30 +562,39 @@ onMounted(() => {
 /* 被告：右边布局 */
 .message-defendant {
   justify-content: flex-end;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
-.message-defendant .message-content-wrapper {
+.message-defendant-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 6px;
+}
+
+.message-defendant-wrapper .message-content-wrapper {
   flex: 1;
   max-width: 70%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  margin-right: 6px;
 }
 
-.message-defendant .message-avatar {
+.message-defendant-wrapper .message-avatar {
   flex-shrink: 0;
+  align-self: flex-start;
 }
 
-.message-defendant .message-name-right {
+.message-defendant-wrapper .message-name-right {
   font-size: 7px;
   color: #999;
   margin-bottom: 3px;
   text-align: right;
 }
 
-.message-defendant .message-time-right {
+.message-defendant-wrapper .message-time-right {
   font-size: 6px;
   color: #999;
   margin-top: 3px;
@@ -541,7 +631,7 @@ onMounted(() => {
 .message-bubble {
   padding: 6px 8px;
   border-radius: 5px;
-  font-size: 8px;
+  font-size: 6px;
   color: #333;
   line-height: 1.4;
   word-wrap: break-word;
@@ -578,6 +668,35 @@ onMounted(() => {
   display: block;
 }
 
+/* 编辑功能 */
+.edit-btn-wrapper {
+  margin-top: 4px;
+  text-align: right;
+}
+
+.message-bubble-left .edit-btn-wrapper {
+  text-align: left;
+}
+
+.message-bubble-right .edit-btn-wrapper {
+  text-align: right;
+}
+
+.edit-btn {
+  font-size: 6px;
+  padding: 2px 6px;
+  height: auto;
+  min-height: auto;
+}
+
+:deep(.edit-textarea .el-textarea__inner) {
+  font-size: 6px;
+  padding: 4px 6px;
+  line-height: 1.4;
+  overflow-y: visible !important;
+  resize: none;
+}
+
 /* 操作按钮 */
 .action-section {
   text-align: center;
@@ -587,7 +706,7 @@ onMounted(() => {
 .generate-btn {
   width: 200px;
   height: 50px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   border-radius: 6px;
   background: #07c160;
