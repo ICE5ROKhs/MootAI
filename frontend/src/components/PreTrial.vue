@@ -18,20 +18,12 @@
       >
         诉讼策略
       </el-button>
-      <el-button
-        :type="activeTab === 'graph' ? 'primary' : ''"
-        :class="{ 'active': activeTab === 'graph' }"
-        @click="activeTab = 'graph'"
-        class="nav-btn"
-      >
-        关系图谱
-      </el-button>
     </div>
 
     <!-- 内容区域 -->
     <div class="content-area">
       <!-- 基本信息 -->
-      <div v-if="activeTab === 'basic'" class="info-section">
+      <div v-if="activeTab === 'basic'" class="unified-section">
         <div class="info-item">
           <h4 class="info-title">案件基本情况</h4>
           <div class="info-content">
@@ -59,40 +51,24 @@
       </div>
 
       <!-- 诉讼策略 -->
-      <div v-else-if="activeTab === 'strategy'" class="strategy-section">
-        <div class="strategy-item">
+      <div v-else-if="activeTab === 'strategy'" class="unified-section">
+        <div class="strategy-item strategy-aggressive">
           <h4 class="strategy-title">激进策略</h4>
           <div class="strategy-content">
             {{ strategies.aggressive }}
           </div>
         </div>
-        <div class="strategy-item">
+        <div class="strategy-item strategy-conservative">
           <h4 class="strategy-title">保守策略</h4>
           <div class="strategy-content">
             {{ strategies.conservative }}
           </div>
         </div>
-        <div class="strategy-item">
+        <div class="strategy-item strategy-balanced">
           <h4 class="strategy-title">均衡策略</h4>
           <div class="strategy-content">
             {{ strategies.balanced }}
           </div>
-        </div>
-      </div>
-
-      <!-- 关系图谱 -->
-      <div v-else-if="activeTab === 'graph'" class="graph-section">
-        <div class="graph-container">
-          <div class="graph-placeholder">
-            <div class="graph-node node-plaintiff">原告</div>
-            <div class="graph-arrow">→</div>
-            <div class="graph-node node-contract">服务合同</div>
-            <div class="graph-arrow">→</div>
-            <div class="graph-node node-defendant">被告</div>
-            <div class="graph-line"></div>
-            <div class="graph-node node-court">法院</div>
-          </div>
-          <p class="graph-tip">关系图谱展示本次诉讼案例中各方的法律关系</p>
         </div>
       </div>
     </div>
@@ -100,9 +76,40 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-const activeTab = ref('basic')
+const props = defineProps({
+  activeSubTab: {
+    type: String,
+    default: 'basic'
+  }
+})
+
+const emit = defineEmits(['update:activeSubTab'])
+
+const activeTab = ref(props.activeSubTab || 'basic')
+
+// 监听外部传入的 activeSubTab 变化
+watch(() => props.activeSubTab, (newVal) => {
+  if (newVal) {
+    activeTab.value = newVal
+  }
+})
+
+// 设置活动标签的方法
+const setActiveTab = (tab) => {
+  activeTab.value = tab
+  emit('update:activeSubTab', tab)
+}
+
+// 监听内部 activeTab 变化，同步到外部
+watch(activeTab, (newVal) => {
+  emit('update:activeSubTab', newVal)
+})
+
+defineExpose({
+  setActiveTab
+})
 
 // 基本信息（AI生成，暂时使用固定文字）
 const basicInfo = ref({
@@ -157,18 +164,18 @@ const strategies = ref({
 /* 顶部导航 */
 .nav-tabs {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   background: #f5f7fa;
-  padding: 10px;
+  padding: 8px;
   border-radius: 8px;
 }
 
 .nav-btn {
   flex: 1;
-  height: 36px;
-  font-size: 13px;
+  height: 32px;
+  font-size: 10px;
   border-radius: 6px;
-  padding: 0 15px;
+  padding: 0 12px;
   transition: all 0.3s;
 }
 
@@ -192,155 +199,93 @@ const strategies = ref({
   flex-direction: column;
 }
 
-/* 基本信息 */
-.info-section {
+/* 统一模块样式 */
+.unified-section {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
+/* 基本信息 */
 .info-item {
   background: #f5f7fa;
   border-radius: 6px;
-  padding: 15px;
-  border-left: 4px solid #409eff;
+  padding: 12px;
+  border-left: 3px solid #409eff;
   transition: all 0.3s;
 }
 
 .info-item:hover {
   background: #ecf5ff;
-  transform: translateX(5px);
+  transform: translateX(3px);
 }
 
 .info-title {
-  font-size: 14px;
+  font-size: 6px;
   color: #409eff;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
   font-weight: 600;
 }
 
 .info-content {
-  font-size: 13px;
+  font-size: 6px;
   color: #606266;
-  line-height: 1.8;
+  line-height: 1.6;
   white-space: pre-line;
 }
 
 /* 诉讼策略 */
-.strategy-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.strategy-item {
+  border-radius: 6px;
+  padding: 12px;
+  border-top: 3px solid;
+  transition: all 0.3s;
 }
 
-.strategy-item {
+.strategy-aggressive {
+  background: #fee;
+  border-top-color: #f56c6c;
+}
+
+.strategy-conservative {
+  background: #fffbeb;
+  border-top-color: #e6a23c;
+}
+
+.strategy-balanced {
   background: #f5f7fa;
-  border-radius: 6px;
-  padding: 15px;
-  border-top: 4px solid #67c23a;
-  transition: all 0.3s;
+  border-top-color: #67c23a;
 }
 
 .strategy-item:hover {
-  background: #f0f9ff;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .strategy-title {
-  font-size: 14px;
-  color: #67c23a;
-  margin: 0 0 10px 0;
+  font-size: 6px;
+  margin: 0 0 8px 0;
   font-weight: 600;
+}
+
+.strategy-aggressive .strategy-title {
+  color: #f56c6c;
+}
+
+.strategy-conservative .strategy-title {
+  color: #e6a23c;
+}
+
+.strategy-balanced .strategy-title {
+  color: #67c23a;
 }
 
 .strategy-content {
-  font-size: 13px;
+  font-size: 6px;
   color: #606266;
-  line-height: 1.8;
+  line-height: 1.6;
   white-space: pre-line;
 }
 
-/* 关系图谱 */
-.graph-section {
-  display: flex;
-  flex-direction: column;
-}
-
-.graph-container {
-  text-align: center;
-}
-
-.graph-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  min-height: 250px;
-  background: #fafafa;
-  border-radius: 8px;
-  border: 1px solid #dcdfe6;
-  padding: 30px;
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.graph-node {
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s;
-}
-
-.graph-node:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.node-plaintiff {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
-}
-
-.node-defendant {
-  background: linear-gradient(135deg, #f56c6c 0%, #f89898 100%);
-}
-
-.node-contract {
-  background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
-}
-
-.node-court {
-  background: linear-gradient(135deg, #e6a23c 0%, #ebb563 100%);
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.graph-arrow {
-  font-size: 20px;
-  color: #909399;
-  font-weight: bold;
-}
-
-.graph-line {
-  width: 100%;
-  height: 2px;
-  background: #dcdfe6;
-  position: absolute;
-  bottom: 80px;
-  left: 0;
-}
-
-.graph-tip {
-  margin-top: 15px;
-  color: #909399;
-  font-size: 12px;
-}
 </style>
 

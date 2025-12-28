@@ -1,0 +1,63 @@
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+
+export const useCaseStore = defineStore('case', () => {
+  // 身份选择
+  const selectedIdentity = ref('')
+  
+  // 文件列表
+  const fileList = ref([])
+  
+  // 文件是否已确认
+  const filesConfirmed = ref(false)
+  
+  // 案件描述
+  const caseDescription = ref('')
+  
+  // 设置身份
+  const setIdentity = (identity) => {
+    selectedIdentity.value = identity
+  }
+  
+  // 设置文件列表
+  const setFileList = (files) => {
+    fileList.value = files
+  }
+  
+  // 确认文件
+  const confirmFiles = () => {
+    filesConfirmed.value = true
+  }
+  
+  // 重置确认状态
+  const resetConfirm = () => {
+    filesConfirmed.value = false
+  }
+  
+  // 设置案件描述
+  const setCaseDescription = (description) => {
+    caseDescription.value = description
+  }
+  
+  // 重置所有状态
+  const reset = () => {
+    selectedIdentity.value = ''
+    fileList.value = []
+    filesConfirmed.value = false
+    caseDescription.value = ''
+  }
+  
+  return {
+    selectedIdentity,
+    fileList,
+    filesConfirmed,
+    caseDescription,
+    setIdentity,
+    setFileList,
+    confirmFiles,
+    resetConfirm,
+    setCaseDescription,
+    reset
+  }
+})
+
