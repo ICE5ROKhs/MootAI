@@ -14,12 +14,13 @@ export default defineConfig({
   server: {
     port: 3000,
     host: 'localhost',
+    strictPort: true, // 如果端口被占用，不自动切换到其他端口，而是报错
     open: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        // 不重写路径，保持 /api 前缀，因为后端接口路径是 /api/xxx
       },
     },
   },

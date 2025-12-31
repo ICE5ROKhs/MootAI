@@ -3,9 +3,9 @@ spring:
     name: mootai-backend
   
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/mootai}
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/MootAI}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD:123456}
     driver-class-name: org.postgresql.Driver
   
   jpa:

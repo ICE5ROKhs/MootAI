@@ -69,42 +69,34 @@
       </div>
     </div>
     
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <h1 class="page-title">模拟法庭</h1>
-    </div>
-    
+    <!-- 主内容区 -->
     <div class="courtroom-wrapper">
-      <!-- 顶部导航 -->
-      <div class="nav-tabs">
-        <el-button
-          :type="activeTab === 'pretrial' ? 'primary' : ''"
-          :class="{ 'active': activeTab === 'pretrial' }"
-          @click="activeTab = 'pretrial'"
-          class="nav-btn"
+      <!-- 页面标题 -->
+      <div class="page-header fade-in">
+        <h1 class="page-title">
+          <span class="title-icon">⚖️</span>
+          <span class="title-text">模拟法庭</span>
+        </h1>
+        <p class="page-subtitle">智能诉讼审判模拟系统</p>
+      </div>
+      
+      <!-- 顶部导航标签 -->
+      <div class="nav-tabs slide-in-right">
+        <div
+          v-for="tab in tabs"
+          :key="tab.key"
+          class="nav-tab"
+          :class="{ 'active': activeTab === tab.key }"
+          @click="navigateToTab(tab.key)"
         >
-          庭前准备
-        </el-button>
-        <el-button
-          :type="activeTab === 'debate' ? 'primary' : ''"
-          :class="{ 'active': activeTab === 'debate' }"
-          @click="activeTab = 'debate'"
-          class="nav-btn"
-        >
-          庭中辩论
-        </el-button>
-        <el-button
-          :type="activeTab === 'verdict' ? 'primary' : ''"
-          :class="{ 'active': activeTab === 'verdict' }"
-          @click="activeTab = 'verdict'"
-          class="nav-btn"
-        >
-          庭后宣判
-        </el-button>
+          <span class="tab-icon">{{ tab.icon }}</span>
+          <span class="tab-text">{{ tab.name }}</span>
+          <div class="tab-indicator"></div>
+        </div>
       </div>
 
       <!-- 内容区域 -->
-      <div class="content-area">
+      <div class="content-area fade-in">
         <PreTrial 
           v-if="activeTab === 'pretrial'" 
           ref="preTrialRef"
@@ -117,13 +109,15 @@
     </div>
     
     <!-- 回到顶部按钮 -->
-    <div 
-      v-show="showBackToTop" 
-      class="back-to-top" 
-      @click="scrollToTop"
-    >
-      🚀
-    </div>
+    <transition name="fade">
+      <div 
+        v-show="showBackToTop" 
+        class="back-to-top" 
+        @click="scrollToTop"
+      >
+        <span class="back-icon">↑</span>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -140,13 +134,18 @@ const activeTab = ref('pretrial')
 const pretrialSubTab = ref('basic')
 const preTrialRef = ref(null)
 
+const tabs = [
+  { key: 'pretrial', name: '庭前准备', icon: '📋' },
+  { key: 'debate', name: '庭中辩论', icon: '⚖️' },
+  { key: 'verdict', name: '庭后宣判', icon: '📜' }
+]
+
 // 侧栏显示状态
 const sidebarVisible = ref(false)
 const sidebarTimer = ref(null)
 
 // 鼠标移动处理
 const handleMouseMove = (event) => {
-  // 如果鼠标在左侧 50px 内，显示侧栏
   if (event.clientX < 50) {
     sidebarVisible.value = true
     if (sidebarTimer.value) {
@@ -228,28 +227,25 @@ onUnmounted(() => {
 <style scoped>
 .courtroom-page {
   width: 100%;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-  overflow: auto;
+  min-height: calc(100vh - 64px);
+  background: var(--bg-secondary);
   position: relative;
+  padding: 0;
 }
 
 /* 左侧边栏 */
 .sidebar {
   position: fixed;
   left: 0;
-  top: 0;
-  height: 100vh;
-  width: 30vw;
-  max-width: 300px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  top: 40px;
+  height: calc(100vh - 40px);
+  width: 80px;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-lg);
   transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  z-index: 1000;
-  overflow-y: auto;
+  transition: transform var(--transition-base);
+  z-index: 100;
+  border-right: 1px solid var(--border-color);
 }
 
 .sidebar-visible {
@@ -257,178 +253,304 @@ onUnmounted(() => {
 }
 
 .sidebar-content {
-  padding: 15px 0;
+  padding: 8px 0;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .sidebar-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 3px 15px;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
   cursor: pointer;
-  transition: all 0.3s;
-  color: #333;
-  font-size: 6px;
+  transition: all var(--transition-fast);
+  color: var(--text-primary);
+  position: relative;
+  font-size: var(--font-size-xs);
+  text-align: center;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary-purple);
+  transform: scaleY(0);
+  transition: transform var(--transition-fast);
 }
 
 .sidebar-item:hover {
-  background: #f0f0f0;
-  color: #409eff;
+  background: var(--bg-overlay);
+  color: var(--primary-purple);
 }
 
 .sidebar-item.active {
-  background: #e6f4ff;
-  color: #409eff;
-  border-left: 3px solid #409eff;
+  background: var(--bg-overlay);
+  color: var(--primary-purple);
+  font-weight: 600;
+}
+
+.sidebar-item.active::before {
+  transform: scaleY(1);
 }
 
 .sidebar-header {
   font-weight: 600;
-  font-size: 6px;
+  margin-bottom: 8px;
 }
 
 .sidebar-icon {
-  margin-right: 8px;
-  font-size: 8px;
-  width: 15px;
+  font-size: 16px;
+  width: auto;
   text-align: center;
 }
 
 .sidebar-text {
-  flex: 1;
-  font-size: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 .sidebar-divider {
   height: 1px;
-  background: #e0e0e0;
-  margin: 3px 0;
+  background: var(--border-color);
+  margin: 6px 8px;
 }
 
 .sidebar-section {
-  margin-bottom: 3px;
+  margin-bottom: 8px;
 }
 
 .sidebar-submenu {
-  padding-left: 25px;
-  background: #f9f9f9;
+  padding-left: 0;
+  margin-top: 2px;
 }
 
 .sidebar-subitem {
-  padding: 3px 15px;
+  padding: 6px 4px;
+  font-size: 9px;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.3s;
-  color: #666;
-  font-size: 6px;
+  transition: all var(--transition-fast);
+  position: relative;
+  text-align: center;
+}
+
+.sidebar-subitem::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition: all var(--transition-fast);
 }
 
 .sidebar-subitem:hover {
-  background: #f0f0f0;
-  color: #409eff;
+  color: var(--primary-purple);
+  background: var(--bg-secondary);
 }
 
 .sidebar-subitem.active {
-  background: #e6f4ff;
-  color: #409eff;
-  font-weight: 600;
+  color: var(--primary-purple);
+  font-weight: 500;
+}
+
+.sidebar-subitem.active::before {
+  background: var(--primary-purple);
+  width: 5px;
+  height: 5px;
+}
+
+/* 主内容区 */
+.courtroom-wrapper {
+  margin-left: 0;
+  padding: 16px;
+  max-width: 100%;
+  margin: 0 auto;
+  transition: margin-left var(--transition-base);
+  width: 100%;
 }
 
 /* 页面标题 */
 .page-header {
-  position: relative;
   text-align: center;
-  margin-bottom: 30px;
-  padding: 20px 0;
+  margin-bottom: 16px;
+  padding: 16px 0;
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-purple-light) 100%);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
 }
 
 .page-title {
-  font-size: 20px;
-  color: white;
-  margin: 0;
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.courtroom-wrapper {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.nav-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  margin-bottom: 20px;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-}
-
-.nav-btn {
-  flex: 1;
-  height: 36px;
-  font-size: 8px;
-  border-radius: 6px;
-  padding: 0 10px;
-  transition: all 0.3s;
-}
-
-.nav-btn:hover {
-  transform: translateY(-2px);
-}
-
-.nav-btn.active {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
-  border-color: #409eff;
-  color: white;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-}
-
-.content-area {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  min-height: 400px;
-}
-
-.coming-soon {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
-  color: #909399;
+  gap: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.title-icon {
+  font-size: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.title-text {
   font-size: 16px;
-  padding: 40px;
+  font-weight: bold;
+  color: var(--text-white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.page-subtitle {
+  font-size: 11px;
+  color: var(--text-white);
+  opacity: 0.9;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 导航标签 */
+.nav-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  background: var(--bg-primary);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-secondary);
+  position: relative;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+}
+
+.nav-tab:hover {
+  background: var(--bg-overlay);
+  color: var(--primary-purple);
+  transform: translateY(-2px);
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-light));
+  color: var(--text-white);
+  box-shadow: var(--shadow-md);
+}
+
+.tab-icon {
+  font-size: 12px;
+}
+
+.tab-text {
+  font-size: var(--font-size-xs);
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background: var(--text-white);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.nav-tab.active .tab-indicator {
+  opacity: 1;
+}
+
+/* 内容区域 */
+.content-area {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  min-height: 300px;
+  width: 100%;
 }
 
 /* 回到顶部按钮 */
 .back-to-top {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
-  width: 40px;
-  height: 40px;
+  right: 32px;
+  bottom: 32px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-light));
+  color: var(--text-white);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
-  transition: all 0.3s;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-base);
   z-index: 1000;
+  border: 2px solid var(--bg-primary);
 }
 
 .back-to-top:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.5);
+  transform: translateY(-5px) scale(1.1);
+  box-shadow: var(--shadow-xl);
+}
+
+.back-icon {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* 过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--transition-base);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
-

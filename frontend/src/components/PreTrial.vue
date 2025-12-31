@@ -173,7 +173,7 @@ const strategies = ref({
 .nav-btn {
   flex: 1;
   height: 32px;
-  font-size: 10px;
+  font-size: 12px;
   border-radius: 6px;
   padding: 0 12px;
   transition: all 0.3s;
@@ -221,14 +221,14 @@ const strategies = ref({
 }
 
 .info-title {
-  font-size: 6px;
+  font-size: 12px;
   color: #409eff;
   margin: 0 0 8px 0;
   font-weight: 600;
 }
 
 .info-content {
-  font-size: 6px;
+  font-size: 12px;
   color: #606266;
   line-height: 1.6;
   white-space: pre-line;
@@ -263,7 +263,7 @@ const strategies = ref({
 }
 
 .strategy-title {
-  font-size: 6px;
+  font-size: 12px;
   margin: 0 0 8px 0;
   font-weight: 600;
 }
@@ -281,7 +281,7 @@ const strategies = ref({
 }
 
 .strategy-content {
-  font-size: 6px;
+  font-size: 12px;
   color: #606266;
   line-height: 1.6;
   white-space: pre-line;

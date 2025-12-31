@@ -5,13 +5,35 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'welcome',
+      component: () => import('@/views/Welcome.vue'),
+      meta: { transition: 'fade' }
+    },
+    {
+      path: '/home',
       name: 'home',
-      component: () => import('@/views/Home.vue'),
+      component: () => import('@/components/Layout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'home-content',
+          component: () => import('@/views/Home.vue'),
+          meta: { transition: 'page' }
+        }
+      ]
     },
     {
       path: '/courtroom',
       name: 'courtroom',
-      component: () => import('@/views/Courtroom.vue'),
+      component: () => import('@/components/Layout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'courtroom-content',
+          component: () => import('@/views/Courtroom.vue'),
+          meta: { transition: 'page' }
+        }
+      ]
     },
   ],
 })
