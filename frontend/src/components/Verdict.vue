@@ -133,7 +133,7 @@ const verdictInfo = ref({
 }
 
 .verdict-title {
-  font-size: 10px;
+  font-size: 12px;
   color: #333;
   margin: 0;
   font-weight: 700;
@@ -146,7 +146,7 @@ const verdictInfo = ref({
 }
 
 .section-title {
-  font-size: 6px;
+  font-size: 12px;
   color: #409eff;
   margin: 0 0 8px 0;
   font-weight: 600;
@@ -155,7 +155,7 @@ const verdictInfo = ref({
 }
 
 .section-content {
-  font-size: 6px;
+  font-size: 12px;
   color: #333;
   line-height: 1.8;
   white-space: pre-line;
@@ -170,7 +170,7 @@ const verdictInfo = ref({
 }
 
 .item-title {
-  font-size: 6px;
+  font-size: 12px;
   color: #409eff;
   margin: 0 0 6px 0;
   font-weight: 600;

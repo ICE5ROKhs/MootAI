@@ -86,6 +86,14 @@ MootAI/
 
 ## 快速开始
 
+### ⚠️ 运行顺序说明
+
+**重要：必须先启动后端，再启动前端！**
+
+1. ✅ **先启动后端服务** - 等待看到"启动成功"提示后再启动前端
+2. ✅ **再启动前端服务** - 前端通过代理连接到后端API (http://localhost:8080)
+3. 🔄 如果后端未启动，前端API请求会失败
+
 ### 前端开发
 
 1. 进入前端目录
@@ -118,8 +126,9 @@ npm run format
 1. 确保已安装 Java 17 和 Maven
 
 2. 配置数据库
-   - 安装 PostgreSQL
-   - 创建数据库 `mootai`
+   - 安装 PostgreSQL（确保服务正在运行）
+   - 创建数据库 `MootAI`（主机：127.0.0.1，端口：5432）
+   - 使用提供的脚本创建数据库（见下方数据库配置说明）
    - **重要**：配置本地数据库密码（见下方配置说明）
 
 3. 配置本地环境
@@ -144,6 +153,26 @@ mvn clean compile
 ```bash
 mvn spring-boot:run
 ```
+
+   **⚠️ 如果启动失败，常见原因：**
+   - 数据库 "MootAI" 未创建 → 运行 `backend/scripts/create-database.ps1` (Windows)
+   - PostgreSQL 服务未运行 → 启动 PostgreSQL 服务
+   - 数据库密码错误 → 检查 `application.yml` 配置
+   - 详细故障排除：查看 `backend/TROUBLESHOOTING.md`
+
+   启动成功后，控制台会显示：
+   ```
+   =========================================
+   ✅ 数据库连接成功！
+   ...
+   =========================================
+   ✅ MootAI 后端服务启动成功！
+   =========================================
+   🌐 服务地址: http://localhost:8080
+   ...
+   ```
+   
+   **重要**：看到"启动成功"提示后，再启动前端服务
 
 7. 代码格式化
 ```bash
@@ -188,9 +217,73 @@ mvn spotless:apply
 ### 后端配置
 
 - **端口**：8080
-- **数据库**：PostgreSQL（默认localhost:5432）
+- **数据库**：PostgreSQL（主机：127.0.0.1，端口：5432，数据库名：MootAI）
 - **JWT密钥**：需要在 `application.yml` 中修改生产环境的密钥
 - **CORS**：已配置允许 `http://localhost:3000` 跨域访问
+
+### 数据库配置
+
+#### 创建数据库
+
+项目使用 PostgreSQL 数据库，数据库名称为 `MootAI`。
+
+**方法一：使用提供的脚本（推荐）**
+
+- **Windows (PowerShell)**:
+  ```powershell
+  cd backend/scripts
+  .\create-database.ps1
+  ```
+
+- **Linux/Mac**:
+  ```bash
+  cd backend/scripts
+  chmod +x create-database.sh
+  ./create-database.sh
+  ```
+
+- **使用 SQL 脚本**:
+  ```bash
+  psql -U postgres -h 127.0.0.1 -p 5432 -f backend/scripts/create-database.sql
+  ```
+
+**方法二：手动创建**
+
+1. 连接到 PostgreSQL：
+   ```bash
+   psql -U postgres -h 127.0.0.1 -p 5432
+   ```
+
+2. 创建数据库：
+   ```sql
+   CREATE DATABASE "MootAI" WITH ENCODING 'UTF8';
+   ```
+
+3. 退出：
+   ```sql
+   \q
+   ```
+
+#### 数据库连接配置
+
+数据库连接配置在 `application.yml` 中：
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/MootAI
+    username: postgres
+    password: 123456  # 请修改为你的实际密码
+```
+
+#### 表结构自动创建
+
+项目使用 Spring Data JPA，配置了 `ddl-auto: update`：
+- 应用启动时会自动创建表结构
+- 如果表已存在，会根据 Entity 定义自动更新表结构
+- 不会删除已存在的数据
+
+详细说明请查看 `backend/src/main/resources/db/README.md`
 
 ## 开发注意事项
 

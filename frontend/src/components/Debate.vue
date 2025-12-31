@@ -341,7 +341,7 @@ onMounted(() => {
 }
 
 .section-title {
-  font-size: 6px;
+  font-size: 12px;
   color: #333;
   margin: 0 0 15px 0;
   font-weight: 600;
@@ -362,14 +362,14 @@ onMounted(() => {
 
 /* 选择器输入框字体大小 */
 :deep(.judge-select .el-input__inner) {
-  font-size: 6px;
+  font-size: 12px;
   height: 28px;
   line-height: 28px;
 }
 
 /* 选择器下拉选项字体大小 */
 :deep(.judge-select .el-select-dropdown__item) {
-  font-size: 6px;
+  font-size: 12px;
   height: auto;
   padding: 6px 12px;
 }
@@ -384,11 +384,11 @@ onMounted(() => {
 .judge-name {
   font-weight: 600;
   color: #333;
-  font-size: 6px;
+  font-size: 12px;
 }
 
 .judge-desc {
-  font-size: 6px;
+  font-size: 12px;
   color: #666;
 }
 
@@ -421,7 +421,7 @@ onMounted(() => {
 }
 
 .strategy-label {
-  font-size: 6px;
+  font-size: 12px;
   font-weight: 600;
   margin-bottom: 8px;
   color: #333;
@@ -436,7 +436,7 @@ onMounted(() => {
 }
 
 .strategy-content {
-  font-size: 6px;
+  font-size: 12px;
   color: #666;
   line-height: 1.6;
 }
@@ -631,7 +631,7 @@ onMounted(() => {
 .message-bubble {
   padding: 6px 8px;
   border-radius: 5px;
-  font-size: 6px;
+  font-size: 12px;
   color: #333;
   line-height: 1.4;
   word-wrap: break-word;
